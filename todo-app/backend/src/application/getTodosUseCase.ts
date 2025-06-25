@@ -1,5 +1,5 @@
-import { Todo } from '../domain/todo';
-import { TodoRepository } from '../domain/todoRepository';
+import { Todo } from '../domain/todo.js';
+import { TodoRepository } from '../domain/todoRepository.js';
 
 export interface GetTodosQuery {
   userId: string;

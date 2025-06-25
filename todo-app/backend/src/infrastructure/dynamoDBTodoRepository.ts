@@ -6,8 +6,8 @@ import {
   QueryCommand,
   DeleteCommand
 } from '@aws-sdk/lib-dynamodb';
-import { Todo } from '../domain/todo';
-import { TodoRepository } from '../domain/todoRepository';
+import { Todo } from '../domain/todo.js';
+import { TodoRepository } from '../domain/todoRepository.js';
 
 interface TodoItemSchema extends Omit<Todo, 'createdAt' | 'updatedAt'> {
   createdAt: string; // ISO string

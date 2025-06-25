@@ -1,4 +1,4 @@
-import { TodoRepository } from '../domain/todoRepository';
+import { TodoRepository } from '../domain/todoRepository.js';
 
 export interface DeleteTodoCommand {
   userId: string;

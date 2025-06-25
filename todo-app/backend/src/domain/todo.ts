@@ -11,11 +11,11 @@ export interface Todo {
 export type TodoCreationParams = Omit<Todo, 'id' | 'createdAt' | 'updatedAt' | 'completed'>;
 export type TodoUpdateParams = Partial<Omit<Todo, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>;
 
-export const createTodo = (params: TodoCreationParams, userId: string, id: string): Todo => {
+export const createTodo = (params: TodoCreationParams, id: string): Todo => {
   const now = new Date();
   return {
     id,
-    userId,
+    userId: params.userId,
     title: params.title,
     description: params.description,
     completed: false,

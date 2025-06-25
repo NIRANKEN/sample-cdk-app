@@ -1,4 +1,4 @@
-import { Todo } from './todo';
+import { Todo } from './todo.js';
 
 export interface TodoRepository {
   save(todo: Todo): Promise<void>;

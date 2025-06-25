@@ -1,5 +1,5 @@
-import { Todo, TodoUpdateParams, updateTodo } from '../domain/todo';
-import { TodoRepository } from '../domain/todoRepository';
+import { Todo, TodoUpdateParams, updateTodo } from '../domain/todo.js';
+import { TodoRepository } from '../domain/todoRepository.js';
 
 export interface UpdateTodoCommand {
   userId: string;

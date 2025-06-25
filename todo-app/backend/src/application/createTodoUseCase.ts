@@ -1,5 +1,5 @@
-import { Todo, TodoCreationParams, createTodo } from '../domain/todo';
-import { TodoRepository } from '../domain/todoRepository';
+import { Todo, TodoCreationParams, createTodo } from '../domain/todo.js';
+import { TodoRepository } from '../domain/todoRepository.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface CreateTodoCommand extends TodoCreationParams {
@@ -20,8 +20,10 @@ export class CreateTodoUseCase {
     }
 
     const newTodoEntity = createTodo(
-      { title, description },
-      userId,
+      {
+        title, description,
+        userId: ''
+      },
       uuidv4() // Generate a new UUID for the todo id
     );
 
