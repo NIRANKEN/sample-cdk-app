@@ -3,6 +3,7 @@ import { Todo, CreateTodoInput, UpdateTodoInput } from '../../domain/todo';
 import { TodoApplicationService } from '../../application/todoService';
 import { ApiTodoRepository } from '../../infrastructure/api/apiTodoRepository'; // 実装を直接利用
 import { useAuthStore } from './authStore'; // 認証ストアからidTokenを取得
+import { getSessionTokens } from '../../application/authService'; // authServiceからトークン取得関数をインポート
 
 // TodoApplicationServiceのインスタンスを作成 (リポジトリを注入)
 // 本来はDIコンテナやReact Context経由で注入するのが望ましいが、ここでは簡略化のため直接インスタンス化
@@ -27,8 +28,14 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   error: null,
 
   _getIdToken: (): string | null => { // ヘルパー関数
-    // Zustandストアの外部で別のストアの最新状態を取得するには `getState()` を使う
-    return useAuthStore.getState().isAuthenticated ? useAuthStore.getState().getSessionTokens().idToken : null;
+    // useAuthStoreからisAuthenticated状態は取得する
+    const isAuthenticated = useAuthStore.getState().isAuthenticated;
+    if (!isAuthenticated) {
+      return null;
+    }
+    // authServiceのgetSessionTokensを直接使用してlocalStorageから取得
+    const tokens = getSessionTokens();
+    return tokens.idToken;
   },
 
   fetchTodos: async () => {
