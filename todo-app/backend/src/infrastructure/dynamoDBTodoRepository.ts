@@ -55,12 +55,12 @@ export class DynamoDBTodoRepository implements TodoRepository {
     await this.docClient.send(command);
   }
 
-  async findById(id: string, userId: string): Promise<Todo | null> {
+  async findByTodoId(todoId: string, userId: string): Promise<Todo | null> { // Renamed from findById, id to todoId
     const command = new GetCommand({
       TableName: this.tableName,
       Key: {
         userId: userId,
-        todoId: id,
+        todoId: todoId, // Changed from id
       },
     });
     const result = await this.docClient.send(command);
@@ -82,12 +82,12 @@ export class DynamoDBTodoRepository implements TodoRepository {
     return result.Items ? result.Items.map(item => this.fromItem(item as TodoItemSchema)) : [];
   }
 
-  async delete(id: string, userId: string): Promise<void> {
+  async deleteByTodoId(todoId: string, userId: string): Promise<void> { // Renamed from delete, id to todoId
     const command = new DeleteCommand({
       TableName: this.tableName,
       Key: {
         userId: userId,
-        todoId: id,
+        todoId: todoId, // Changed from id
       },
     });
     await this.docClient.send(command);

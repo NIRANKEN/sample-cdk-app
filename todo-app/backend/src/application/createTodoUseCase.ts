@@ -21,10 +21,11 @@ export class CreateTodoUseCase {
 
     const newTodoEntity = createTodo(
       {
-        title, description,
-        userId: ''
+        userId, // Pass the correct userId from the command
+        title,
+        description,
       },
-      uuidv4() // Generate a new UUID for the todo id
+      uuidv4() // Generate a new UUID for the todoId
     );
 
     await this.todoRepository.save(newTodoEntity);

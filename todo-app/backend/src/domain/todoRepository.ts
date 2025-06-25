@@ -2,7 +2,7 @@ import { Todo } from './todo.js';
 
 export interface TodoRepository {
   save(todo: Todo): Promise<void>;
-  findById(id: string, userId: string): Promise<Todo | null>;
+  findByTodoId(todoId: string, userId: string): Promise<Todo | null>; // Renamed from findById and changed id to todoId
   findAllByUserId(userId: string): Promise<Todo[]>;
-  delete(id: string, userId: string): Promise<void>;
+  deleteByTodoId(todoId: string, userId: string): Promise<void>; // Renamed from delete and changed id to todoId
 }

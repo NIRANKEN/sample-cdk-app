@@ -20,11 +20,11 @@ export class DeleteTodoUseCase {
 
     // Optional: Check if todo exists before attempting delete,
     // depending on whether you want to return a specific error or not.
-    // const existingTodo = await this.todoRepository.findById(todoId, userId);
+    // const existingTodo = await this.todoRepository.findByTodoId(todoId, userId); // Changed findById to findByTodoId
     // if (!existingTodo) {
     //   throw new Error('Todo not found'); // Or handle as a success if idempotent delete is preferred
     // }
 
-    await this.todoRepository.delete(todoId, userId);
+    await this.todoRepository.deleteByTodoId(todoId, userId); // Changed delete to deleteByTodoId
   }
 }

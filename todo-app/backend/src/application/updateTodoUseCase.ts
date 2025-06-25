@@ -26,7 +26,7 @@ export class UpdateTodoUseCase {
     // e.g., if (updates.title !== undefined && updates.title.trim() === '') throw new Error('Title cannot be empty');
 
 
-    const existingTodo = await this.todoRepository.findById(todoId, userId);
+    const existingTodo = await this.todoRepository.findByTodoId(todoId, userId); // Changed findById to findByTodoId
     if (!existingTodo) {
       return null; // Or throw a NotFoundError
     }
