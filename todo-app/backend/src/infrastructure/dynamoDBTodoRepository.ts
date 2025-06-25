@@ -20,7 +20,19 @@ export class DynamoDBTodoRepository implements TodoRepository {
   private readonly tableName: string;
 
   constructor() {
-    this.client = new DynamoDBClient({}); // リージョンはLambda実行環境から自動的に設定される
+    const isOffline = process.env.IS_OFFLINE === 'true';
+    const clientConfig = isOffline
+      ? {
+          region: 'localhost',
+          endpoint: 'http://localhost:8000',
+          credentials: {
+            accessKeyId: 'MockAccessKeyId', // ローカルDynamoDBは認証を必要としないが、SDKは値を要求する
+            secretAccessKey: 'MockSecretAccessKey', // ローカルDynamoDBは認証を必要としないが、SDKは値を要求する
+          },
+        }
+      : {}; // リージョンはLambda実行環境から自動的に設定される
+
+    this.client = new DynamoDBClient(clientConfig);
     this.docClient = DynamoDBDocumentClient.from(this.client);
 
     const tableNameFromEnv = process.env.TODO_TABLE_NAME;

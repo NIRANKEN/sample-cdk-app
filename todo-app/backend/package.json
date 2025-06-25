@@ -7,7 +7,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "db:start": "docker-compose -f ../localdb/docker-compose.yml up -d",
+    "db:stop": "docker-compose -f ../localdb/docker-compose.yml down",
+    "dev:createTodo": "node --env-file=.env ./scripts/invoke-local.js src/handlers/createTodo.handler ./events/createTodoEvent.json"
   },
   "keywords": [],
   "author": "",
