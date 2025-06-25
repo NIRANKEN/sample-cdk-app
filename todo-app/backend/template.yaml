@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  todo-app
+  Sample SAM Template for todo-app
+
+Globals:
+  Function:
+    Timeout: 10 # デバッグ用に少し長めに設定
+    MemorySize: 128
+    Runtime: nodejs20.x
+    Environment:
+      Variables:
+        TODO_TABLE_NAME: Todos # .env の値と合わせる
+        # DynamoDB Local を使用する場合はエンドポイントを指定
+        # DYNAMODB_ENDPOINT_URL: "http://host.docker.internal:8000" # SAMがDocker内で実行される場合、ホストOSのlocalhostを参照するために変更
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1 # SDKの推奨設定
+    Architectures:
+      - x86_64 # サンドボックス環境に合わせて指定
+
+Resources:
+  CreateTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./ # ビルド後の dist を含むディレクトリを指すように調整 (後述)
+      Handler: dist/src/handlers/createTodo.handler # tsc の出力構造に合わせる
+      Events:
+        CreateTodo:
+          Type: Api
+          Properties:
+            Path: /todos
+            Method: post
+
+  GetTodosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/src/handlers/getTodos.handler
+      Events:
+        GetTodos:
+          Type: Api
+          Properties:
+            Path: /todos
+            Method: get
+
+  UpdateTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/src/handlers/updateTodo.handler
+      Events:
+        UpdateTodo:
+          Type: Api
+          Properties:
+            Path: /todos/{todoId}
+            Method: put
+
+  DeleteTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/src/handlers/deleteTodo.handler
+      Events:
+        DeleteTodo:
+          Type: Api
+          Properties:
+            Path: /todos/{todoId}
+            Method: delete
+
+Outputs:
+  ApiGatewayEndpoint:
+    Description: "API Gateway endpoint URL for local stage"
+    Value: !Sub "http://localhost:3000" # sam local start-api のデフォルトポート

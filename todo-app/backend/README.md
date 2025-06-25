@@ -62,30 +62,109 @@
     ```
     `TODO_TABLE_NAME` 環境変数と一致するテーブル名を使用してください。
 
-### Lambda 関数のローカル実行
+### Lambda 関数のローカル実行 (AWS SAM Local を使用)
 
-Lambda 関数をローカルで呼び出すためのスクリプトが提供されています。
+AWS SAM Local を使用すると、ローカルマシン上で API Gateway をエミュレートし、Lambda 関数を HTTP リクエスト経由でテストできます。これにより、フロントエンドアプリケーションからの API コールをローカルで検証できます。
 
-1.  **ビルド:** TypeScript コードが JavaScript にコンパイルされていることを確認してください (`pnpm build`)。
-2.  **DynamoDB Local の起動:** `pnpm db:start` が実行されていることを確認してください。
-3.  **関数の呼び出し:**
-    `package.json` の `scripts` セクションに、各関数を呼び出すための `dev:*` スクリプトが定義されています。
-    例えば、`createTodo` 関数を呼び出すには:
-    ```bash
-    pnpm dev:createTodo
+**前提条件 (追加):**
+- AWS SAM CLI (インストール方法は[公式ドキュメント](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)を参照)
+- Docker および Docker Compose (DynamoDB Local および SAM Local の実行に必要)
+
+**セットアップ (SAM Local向け):**
+
+1.  **`template.yaml` の作成:**
+    プロジェクトのルート (`todo-app/backend`) に、API Gateway のエンドポイントと Lambda 関数を定義する `template.yaml` ファイルを作成します。このファイルは、SAM がローカルで API をエミュレートするために使用されます。
+    ```yaml
+    AWSTemplateFormatVersion: '2010-09-09'
+    Transform: AWS::Serverless-2016-10-31
+    Description: todo-app backend
+
+    Globals:
+      Function:
+        Timeout: 10
+        MemorySize: 128
+        Runtime: nodejs20.x # プロジェクトのNode.jsバージョンに合わせて調整
+        Environment:
+          Variables:
+            TODO_TABLE_NAME: Todos # .envの値と一致させる
+            AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+    Resources:
+      CreateTodoFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+          CodeUri: ./
+          Handler: dist/src/handlers/createTodo.handler
+          Events:
+            CreateTodo:
+              Type: Api
+              Properties:
+                Path: /todos
+                Method: post
+      # 他のLambda関数 (GetTodos, UpdateTodo, DeleteTodo) も同様に定義
+      # 例: GetTodosFunction, UpdateTodoFunction, DeleteTodoFunction
+
+    Outputs:
+      ApiGatewayEndpoint:
+        Description: "API Gateway endpoint URL for local stage"
+        Value: "http://localhost:3000" # sam local start-api のデフォルト
     ```
-    このスクリプトは、`scripts/invoke-local.js` を使用して、指定されたハンドラー (`src/handlers/createTodo.handler`) を、対応するイベント JSON ファイル (`events/createTodoEvent.json`) の内容をペイロードとして実行します。環境変数は `.env` ファイルから読み込まれます。
+    完全な `template.yaml` の例はプロジェクト内のファイルを参照してください。
 
-    新しい Lambda 関数を追加したり、既存の関数の呼び出し方を変更したりする場合は、以下の手順に従います。
-    *   `events/` ディレクトリに新しいイベント JSON ファイルを作成します。
-    *   `package.json` の `scripts` セクションに新しい `dev:*` スクリプトを追加し、正しいハンドラパスとイベントファイルパスを指定します。
-    *   必要に応じて `.env` ファイルに環境変数を追加します。
+2.  **`.env.json` の作成:**
+    SAM Local が Lambda 関数に環境変数を渡すために、`.env.json` ファイルを作成します。これは `.env` ファイルを元に関数ごとの環境変数をJSON形式で記述したものです。
+    例 (`.env.json`):
+    ```json
+    {
+      "CreateTodoFunction": {
+        "TODO_TABLE_NAME": "Todos",
+        "DYNAMODB_ENDPOINT_URL": "http://localhost:8000"
+      },
+      "GetTodosFunction": { /* ... */ },
+      "UpdateTodoFunction": { /* ... */ },
+      "DeleteTodoFunction": { /* ... */ }
+    }
+    ```
+    `DYNAMODB_ENDPOINT_URL` は、ローカルの DynamoDB を使用する場合に設定します。
 
-### 注意事項
+3.  **`package.json` へのスクリプト追加:**
+    `sam local start-api` を簡単に実行できるように、`package.json` の `scripts` にコマンドを追加します。
+    ```json
+    "scripts": {
+      // ...
+      "sam:local": "sam local start-api --env-vars .env.json --warm-containers EAGER"
+    }
+    ```
 
--   `invoke-local.js` スクリプトは、完全な API Gateway や Lambda 環境をエミュレートするわけではありません。主にハンドラロジックと DynamoDB との連携をテストするためのものです。
--   認証や認可の側面は、ローカル実行では簡略化されています。`createTodoEvent.json` の中の `requestContext.authorizer.jwt.claims.sub` のように、テスト用のユーザーIDをイベントデータに含める必要があります。
--   ローカルでの実行パスは、ビルド後の JavaScript ファイル (`dist` ディレクトリではなく、`.js` を解決する `src` からの相対パス) を指すように `invoke-local.js` で調整されています。これは `tsconfig.json` の `outDir` 設定と `package.json` の `type: "module"` に依存します。
+**ローカル実行手順:**
+
+1.  **依存関係のインストールとビルド:**
+    ```bash
+    pnpm install
+    pnpm build
+    ```
+2.  **DynamoDB Local の起動 (必要な場合):**
+    Docker がインストールされていれば、`pnpm db:start` で DynamoDB Local を起動できます。
+    ```bash
+    pnpm db:start
+    ```
+    初回起動時やデータがない場合は、テーブル作成が必要な場合があります (README の「DynamoDB Local の実行」セクション参照)。
+3.  **SAM Local API Gateway の起動:**
+    ```bash
+    pnpm sam:local
+    ```
+    これにより、デフォルトで `http://localhost:3000` で API Gateway が起動します。
+
+4.  **フロントエンドからの接続:**
+    フロントエンドアプリケーション (`./todo-app/frontend`) の API 設定 (`src/config/apiConfig.ts` など) で、API のベース URL を `http://localhost:3000` に設定します。
+    これで、フロントエンドから行われた API リクエストは、ローカルで実行されている Lambda 関数にルーティングされます。
+
+### 注意事項 (SAM Local)
+
+-   **必要なツール:** AWS SAM CLI と Docker がローカルマシンに正しくインストールされ、設定されている必要があります。
+-   **DynamoDB Local:** Lambda 関数が DynamoDB を使用する場合、DynamoDB Local を起動し、必要に応じてテーブルを作成し、Lambda 関数がローカルエンドポイント (`http://localhost:8000`) を向くように環境変数 (`DYNAMODB_ENDPOINT_URL`) を設定する必要があります。
+-   **ホットリロード:** `sam local start-api` は、コード変更時の自動リロード機能が限定的です。コードを変更した場合は、SAM Local を再起動するか、`--warm-containers LAZY` などのオプションを検討してください。
+-   **認証・認可:** API Gateway の認証・認可メカニズム (例: Cognito Authorizer) は、`sam local start-api` では完全にはエミュレートされない場合があります。テスト用のトークンやモックを使用する必要があるかもしれません。
 
 ## デプロイ
 
