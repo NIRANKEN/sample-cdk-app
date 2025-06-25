@@ -20,6 +20,7 @@ interface TodoState {
   deleteTodo: (todoId: string) => Promise<void>;
   toggleTodo: (todoId: string, currentCompletedStatus: boolean) => Promise<Todo | null>;
   clearError: () => void;
+  _getIdToken: () => string | null; // ヘルパー関数
 }
 
 export const useTodoStore = create<TodoState>((set, get) => ({

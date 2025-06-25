@@ -1,17 +1,17 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as cloudfront_origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
-import * as apigwv2_authorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
-import * as apigwv2_integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-import * as s3_deployment from 'aws-cdk-lib/aws-s3-deployment'; // s3-deployment モジュールをインポート
+// import * as s3 from 'aws-cdk-lib/aws-s3';
+// import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+// import * as cloudfront_origins from 'aws-cdk-lib/aws-cloudfront-origins';
+// import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+// import * as lambda from 'aws-cdk-lib/aws-lambda';
+// import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+// import * as iam from 'aws-cdk-lib/aws-iam';
+// import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
+// import * as apigwv2_authorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
+// import * as apigwv2_integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+// import * as s3_deployment from 'aws-cdk-lib/aws-s3-deployment'; // s3-deployment モジュールをインポート
 
 export class TodoAppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -109,7 +109,7 @@ export class TodoAppStack extends cdk.Stack {
         },
       ],
       priceClass: cdk.aws_cloudfront.PriceClass.PRICE_CLASS_200, // または PRICE_CLASS_ALL
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // デモ用
+      // removalPolicy: cdk.RemovalPolicy.DESTROY, // デモ用
     });
 
     // Output the CloudFront Distribution Domain Name
@@ -274,7 +274,7 @@ export class TodoAppStack extends cdk.Stack {
       distributionPaths: ['/*'], // キャッシュを無効化するパス
       // memoryLimit: 1024, // ビルド資材が大きい場合はメモリを増やす
       // ephemeralStorageSize: cdk.Size.gibibytes(2), // 必要に応じて
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にデプロイされたオブジェクトも削除
+      // removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にデプロイされたオブジェクトも削除
     });
   }
 }

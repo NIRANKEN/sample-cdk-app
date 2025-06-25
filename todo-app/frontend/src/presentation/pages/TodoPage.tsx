@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useTodoStore } from '../store/todoStore';
 import { useAuthStore } from '../store/authStore';
 import { Todo, CreateTodoInput } from '../../domain/todo'; // UpdateTodoInputも必要に応じて
+import { useNavigate } from 'react-router-dom';
 
 const TodoPage: React.FC = () => {
   const { todos, isLoading, error, fetchTodos, addTodo, updateTodo, deleteTodo, toggleTodo, clearError } = useTodoStore();
-  const { user, signOut, isAuthenticated, getSessionTokens } = useAuthStore(); // user情報やsignOut関数も取得
+  const { user, signOut, isAuthenticated } = useAuthStore(); // user情報やsignOut関数も取得
   const navigate = useNavigate(); // react-router-dom v6
 
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -201,10 +202,6 @@ const TodoPage: React.FC = () => {
     </div>
   );
 };
-
-// useNavigate をインポート
-import { useNavigate } from 'react-router-dom';
-
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
