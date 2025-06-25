@@ -1,0 +1,30 @@
+import { TodoRepository } from '../domain/todoRepository';
+
+export interface DeleteTodoCommand {
+  userId: string;
+  todoId: string;
+}
+
+export class DeleteTodoUseCase {
+  constructor(private readonly todoRepository: TodoRepository) {}
+
+  async execute(command: DeleteTodoCommand): Promise<void> {
+    const { userId, todoId } = command;
+
+    if (!userId) {
+      throw new Error('User ID is required.');
+    }
+    if (!todoId) {
+      throw new Error('Todo ID is required.');
+    }
+
+    // Optional: Check if todo exists before attempting delete,
+    // depending on whether you want to return a specific error or not.
+    // const existingTodo = await this.todoRepository.findById(todoId, userId);
+    // if (!existingTodo) {
+    //   throw new Error('Todo not found'); // Or handle as a success if idempotent delete is preferred
+    // }
+
+    await this.todoRepository.delete(todoId, userId);
+  }
+}
