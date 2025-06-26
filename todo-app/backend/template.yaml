@@ -15,8 +15,8 @@ Globals:
         # DynamoDB Local を使用する場合はエンドポイントを指定
         # DYNAMODB_ENDPOINT_URL: "http://host.docker.internal:8000" # SAMがDocker内で実行される場合、ホストOSのlocalhostを参照するために変更
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1 # SDKの推奨設定
-    Architectures:
-      - x86_64 # サンドボックス環境に合わせて指定
+    # Architectures: # AuthorizerFunctionで個別に指定するため、Globalからは一旦削除またはコメントアウト
+    #   - x86_64
   Api:
     Cors:
       AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'" # 必要なHTTPメソッドを指定
