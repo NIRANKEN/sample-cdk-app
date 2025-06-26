@@ -17,13 +17,19 @@ Globals:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1 # SDKの推奨設定
     Architectures:
       - x86_64 # サンドボックス環境に合わせて指定
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'" # 必要なHTTPメソッドを指定
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'" # 必要なヘッダーを指定
+      AllowOrigin: "'*'" # 開発中は全てのオリジンを許可、必要に応じて制限
+      AllowCredentials: "'*'" # 認証情報を含めない設定
 
 Resources:
   CreateTodoFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./ # ビルド後の dist を含むディレクトリを指すように調整 (後述)
-      Handler: dist/src/handlers/createTodo.handler # tsc の出力構造に合わせる
+      Handler: dist/handlers/createTodo.handler # tsc の出力構造に合わせる
       Events:
         CreateTodo:
           Type: Api
@@ -35,7 +41,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
-      Handler: dist/src/handlers/getTodos.handler
+      Handler: dist/handlers/getTodos.handler
       Events:
         GetTodos:
           Type: Api
@@ -47,7 +53,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
-      Handler: dist/src/handlers/updateTodo.handler
+      Handler: dist/handlers/updateTodo.handler
       Events:
         UpdateTodo:
           Type: Api
@@ -59,7 +65,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
-      Handler: dist/src/handlers/deleteTodo.handler
+      Handler: dist/handlers/deleteTodo.handler
       Events:
         DeleteTodo:
           Type: Api
