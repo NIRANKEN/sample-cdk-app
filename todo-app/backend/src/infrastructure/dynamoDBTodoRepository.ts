@@ -1,15 +1,15 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   PutCommand,
   GetCommand,
   QueryCommand,
-  DeleteCommand
-} from '@aws-sdk/lib-dynamodb';
-import { Todo } from '../domain/todo.js';
-import { TodoRepository } from '../domain/todoRepository.js';
+  DeleteCommand,
+} from "@aws-sdk/lib-dynamodb";
+import { Todo } from "../domain/todo.js";
+import { TodoRepository } from "../domain/todoRepository.js";
 
-interface TodoItemSchema extends Omit<Todo, 'createdAt' | 'updatedAt'> {
+interface TodoItemSchema extends Omit<Todo, "createdAt" | "updatedAt"> {
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 }
@@ -20,14 +20,14 @@ export class DynamoDBTodoRepository implements TodoRepository {
   private readonly tableName: string;
 
   constructor() {
-    const isOffline = process.env.IS_OFFLINE === 'true';
+    const isOffline = process.env.IS_OFFLINE === "true";
     const clientConfig = isOffline
       ? {
-          region: 'localhost',
-          endpoint: 'http://localhost:8000',
+          region: "localhost",
+          endpoint: "http://docker.for.mac.localhost:8000",
           credentials: {
-            accessKeyId: 'MockAccessKeyId', // ローカルDynamoDBは認証を必要としないが、SDKは値を要求する
-            secretAccessKey: 'MockSecretAccessKey', // ローカルDynamoDBは認証を必要としないが、SDKは値を要求する
+            accessKeyId: "MockAccessKeyId", // ローカルDynamoDBは認証を必要としないが、SDKは値を要求する
+            secretAccessKey: "MockSecretAccessKey", // ローカルDynamoDBは認証を必要としないが、SDKは値を要求する
           },
         }
       : {}; // リージョンはLambda実行環境から自動的に設定される
@@ -37,7 +37,7 @@ export class DynamoDBTodoRepository implements TodoRepository {
 
     const tableNameFromEnv = process.env.TODO_TABLE_NAME;
     if (!tableNameFromEnv) {
-      throw new Error('TODO_TABLE_NAME environment variable is not set.');
+      throw new Error("TODO_TABLE_NAME environment variable is not set.");
     }
     this.tableName = tableNameFromEnv;
   }
@@ -67,7 +67,8 @@ export class DynamoDBTodoRepository implements TodoRepository {
     await this.docClient.send(command);
   }
 
-  async findByTodoId(todoId: string, userId: string): Promise<Todo | null> { // Renamed from findById, id to todoId
+  async findByTodoId(todoId: string, userId: string): Promise<Todo | null> {
+    // Renamed from findById, id to todoId
     const command = new GetCommand({
       TableName: this.tableName,
       Key: {
@@ -85,16 +86,19 @@ export class DynamoDBTodoRepository implements TodoRepository {
   async findAllByUserId(userId: string): Promise<Todo[]> {
     const command = new QueryCommand({
       TableName: this.tableName,
-      KeyConditionExpression: 'userId = :userId',
+      KeyConditionExpression: "userId = :userId",
       ExpressionAttributeValues: {
-        ':userId': userId,
+        ":userId": userId,
       },
     });
     const result = await this.docClient.send(command);
-    return result.Items ? result.Items.map(item => this.fromItem(item as TodoItemSchema)) : [];
+    return result.Items
+      ? result.Items.map((item) => this.fromItem(item as TodoItemSchema))
+      : [];
   }
 
-  async deleteByTodoId(todoId: string, userId: string): Promise<void> { // Renamed from delete, id to todoId
+  async deleteByTodoId(todoId: string, userId: string): Promise<void> {
+    // Renamed from delete, id to todoId
     const command = new DeleteCommand({
       TableName: this.tableName,
       Key: {

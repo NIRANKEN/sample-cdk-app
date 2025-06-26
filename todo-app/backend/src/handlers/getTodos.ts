@@ -6,8 +6,8 @@ import { Todo } from '../domain/todo.js';
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     // ユーザーIDの取得元を authorizer.lambda.userId に変更
-    // console.log('getTodos event:', JSON.stringify(event, null, 2)); // デバッグ用にイベント全体をログ出力
-    const userId = event.requestContext.authorizer?.lambda?.userId; // ★ 変更点
+    console.log('getTodos event:', JSON.stringify(event, null, 2)); // デバッグ用にイベント全体をログ出力
+    const userId = event.requestContext.authorizer?.userId; // ★ 変更点
 
     if (!userId || typeof userId !== 'string') {
       console.error('User ID not found or invalid in authorizer context:', event.requestContext.authorizer);

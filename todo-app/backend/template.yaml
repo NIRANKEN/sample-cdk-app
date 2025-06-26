@@ -6,7 +6,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 10 # デバッグ用に少し長めに設定
+    Timeout: 20 # デバッグ用に少し長めに設定
     MemorySize: 128
     Runtime: nodejs20.x
     Environment:
@@ -15,6 +15,7 @@ Globals:
         # DynamoDB Local を使用する場合はエンドポイントを指定
         # DYNAMODB_ENDPOINT_URL: "http://host.docker.internal:8000" # SAMがDocker内で実行される場合、ホストOSのlocalhostを参照するために変更
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1 # SDKの推奨設定
+        IS_OFFLINE: true
     # Architectures: # AuthorizerFunctionで個別に指定するため、Globalからは一旦削除またはコメントアウト
     #   - x86_64
   Api:

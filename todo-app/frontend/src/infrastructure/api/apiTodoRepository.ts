@@ -56,7 +56,8 @@ export class ApiTodoRepository implements TodoRepository {
 
   private getAuthHeaders(idToken: string) {
     return {
-      Authorization: `Bearer ${idToken}`,
+      // Authorization: `Bearer ${idToken}`,
+      Authorization: `allow`,
       // 'Content-Type': 'application/json', // POST, PUTではaxiosが自動で設定する場合が多い
     };
   }

@@ -18,14 +18,24 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       };
     }
 
-    const userId = event.requestContext.authorizer?.jwt?.claims?.sub;
+    // ユーザーIDの取得元を authorizer.lambda.userId に変更
+    console.log('getTodos event:', JSON.stringify(event, null, 2)); // デバッグ用にイベント全体をログ出力
+    const userId = event.requestContext.authorizer?.userId; // ★ 変更点
+
     if (!userId || typeof userId !== 'string') {
+      console.error('User ID not found or invalid in authorizer context:', event.requestContext.authorizer);
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: 'Unauthorized: User ID not found in token' }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+        body: JSON.stringify({ message: 'Unauthorized: User ID not found in authorizer context' }),
       };
     }
+    console.log(`Successfully retrieved userId: ${userId} from authorizer context`);
 
     const requestBody = JSON.parse(event.body) as CreateTodoRequest;
     const { title, description } = requestBody;
