@@ -105,8 +105,8 @@ frontend:
         { name: 'NEXT_PUBLIC_API_BASE_URL', value: httpApi.url! }, // Ensure httpApi.url is available
         { name: 'NEXT_PUBLIC_AWS_REGION', value: this.region },
         // Server-side specific env vars (not prefixed with NEXT_PUBLIC_)
-        { name: 'AWS_REGION', value: this.region },
-        { name: 'COGNITO_USER_POOL_ID', value: userPool.userPoolId },
+        // { name: 'AWS_REGION', value: this.region },
+        // { name: 'COGNITO_USER_POOL_ID', value: userPool.userPoolId },
       ],
       // Optional: Add custom domain, access control, etc.
       // customRules: [{ source: '/<*>', target: '/index.html', status: '404-200' }], // For SPAs, less relevant for Next.js SSR

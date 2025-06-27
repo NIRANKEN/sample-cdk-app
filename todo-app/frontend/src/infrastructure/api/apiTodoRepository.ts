@@ -62,11 +62,19 @@ export class ApiTodoRepository implements TodoRepository {
   }
 
   private getAuthHeaders(idToken: string) {
-    return {
-      // Authorization: `Bearer ${idToken}`,
-      Authorization: "allow", // ローカル開発用のテストトークン
-      // 'Content-Type': 'application/json', // POST, PUTではaxiosが自動で設定する場合が多い
-    };
+    const appEnv = process.env.NEXT_PUBLIC_APP_ENV;
+
+    if (appEnv === "local") {
+      return {
+        Authorization: "allow",
+        // 'Content-Type': 'application/json', // POST, PUTではaxiosが自動で設定する場合が多い
+      };
+    } else {
+      return {
+        Authorization: `Bearer ${idToken}`,
+        // 'Content-Type': 'application/json',
+      };
+    }
   }
 
   async create(todoInput: CreateTodoInput, idToken: string): Promise<Todo> {
