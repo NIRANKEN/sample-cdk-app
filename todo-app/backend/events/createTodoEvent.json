@@ -1,0 +1,17 @@
+{
+  "body": "{\"title\": \"My Local Todo\", \"description\": \"This is a test todo created locally.\"}",
+  "requestContext": {
+    "authorizer": {
+      "jwt": {
+        "claims": {
+          "sub": "local-user-id-12345"
+        }
+      }
+    }
+  },
+  "httpMethod": "POST",
+  "path": "/todos",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

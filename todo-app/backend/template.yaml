@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  todo-app
+  Sample SAM Template for todo-app
+
+Globals:
+  Function:
+    Timeout: 20 # デバッグ用に少し長めに設定
+    MemorySize: 128
+    Runtime: nodejs20.x
+    Environment:
+      Variables:
+        TODO_TABLE_NAME: Todos # .env の値と合わせる
+        # DynamoDB Local を使用する場合はエンドポイントを指定
+        # DYNAMODB_ENDPOINT_URL: "http://host.docker.internal:8000" # SAMがDocker内で実行される場合、ホストOSのlocalhostを参照するために変更
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1 # SDKの推奨設定
+        IS_OFFLINE: true
+    # Architectures: # AuthorizerFunctionで個別に指定するため、Globalからは一旦削除またはコメントアウト
+    #   - x86_64
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'" # 必要なHTTPメソッドを指定
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'" # 必要なヘッダーを指定
+      AllowOrigin: "'*'" # 開発中は全てのオリジンを許可、必要に応じて制限
+      AllowCredentials: "'*'" # 認証情報を含めない設定
+    # API Gateway全体にAuthorizerを設定 (各ルートで上書き可能)
+    Auth:
+      DefaultAuthorizer: LambdaTokenAuthorizer # 下で定義するAuthorizer名
+      Authorizers:
+        LambdaTokenAuthorizer:
+          FunctionPayloadType: TOKEN
+          FunctionArn: !GetAtt AuthorizerFunction.Arn
+          Identity:
+            Header: Authorization
+            # ValidationExpression: 'allow' # オプショナル: SAMでは正規表現による事前検証も可能
+          # SAM Localではキャッシュを無効にするか、短く設定するとデバッグしやすい
+          AuthorizerResultTtlInSeconds: 0 # ローカルテストのためにキャッシュを無効化
+
+
+Resources:
+  AuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/authorizer.handler # 作成したAuthorizerのハンドラー
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      Timeout: 10
+      MemorySize: 128
+      # Environment: # Authorizerが必要な環境変数があれば設定
+      #   Variables:
+      #     SOME_KEY: SOME_VALUE
+
+  CreateTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/handlers/createTodo.handler
+      Events:
+        CreateTodo:
+          Type: Api
+          Properties:
+            Path: /todos
+            Method: post
+            # Auth: # Globalで設定しているため、個別に設定する場合は上書き
+            #   Authorizer: LambdaTokenAuthorizer
+
+  GetTodosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/handlers/getTodos.handler
+      Events:
+        GetTodos:
+          Type: Api
+          Properties:
+            Path: /todos
+            Method: get
+            # Auth:
+            #   Authorizer: LambdaTokenAuthorizer
+
+  UpdateTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/handlers/updateTodo.handler
+      Events:
+        UpdateTodo:
+          Type: Api
+          Properties:
+            Path: /todos/{todoId}
+            Method: put
+            # Auth:
+            #   Authorizer: LambdaTokenAuthorizer
+
+  DeleteTodoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/handlers/deleteTodo.handler
+      Events:
+        DeleteTodo:
+          Type: Api
+          Properties:
+            Path: /todos/{todoId}
+            Method: delete
+            # Auth:
+            #   Authorizer: LambdaTokenAuthorizer
+
+Outputs:
+  ApiGatewayEndpoint:
+    Description: "API Gateway endpoint URL for local stage"
+    Value: !Sub "http://localhost:3000"
