@@ -79,18 +79,18 @@ frontend:
   phases:
     preBuild:
       commands:
-        - pnpm install --frozen-lockfile
+        - cd ./todo-app/frontend && pnpm install --frozen-lockfile
     build:
       commands:
-        - pnpm run build
+        - cd ./todo-app/frontend && pnpm run build
   artifacts:
-    baseDirectory: .next # Default for Next.js build output
+    baseDirectory: ./todo-app/frontend/.next # Default for Next.js build output
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
-      - .next/cache/**/* # Next.js build cache
+      - ./todo-app/frontend/node_modules/**/*
+      - ./todo-app/frontend/.next/cache/**/* # Next.js build cache
 `,
       // IMPORTANT: To deploy from local source code directly with CDK (without Git repo):
       // You would typically use the @aws-cdk/aws-amplify-alpha L2 construct's `code` property.
