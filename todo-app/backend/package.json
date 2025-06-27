@@ -11,6 +11,7 @@
     "db:start": "docker compose -f ../localdb/docker-compose.yml up -d",
     "db:stop": "docker compose -f ../localdb/docker-compose.yml down",
     "dev:createTodo": "node --env-file=.env ./scripts/invoke-local.js src/handlers/createTodo.handler ./events/createTodoEvent.json",
+    "db:migrate": "DYNAMODB_ENDPOINT=\"http://localhost:8000\" node --loader ts-node/esm ./scripts/run-migrations.ts",
     "sam:local": "sam local start-api --env-vars .env.json --warm-containers EAGER"
   },
   "keywords": [],
@@ -20,6 +21,8 @@
     "@types/aws-lambda": "^8.10.143",
     "@types/node": "^24.0.4",
     "@types/uuid": "^10.0.0",
+    "dotenv": "^16.6.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
