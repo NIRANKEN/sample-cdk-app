@@ -170,30 +170,6 @@ export const getStoredRefreshToken = (): string | null => {
   return localStorage.getItem('refreshToken');
 }
 
-// --- Cookie Helper Functions ---
-// These functions run on the client-side.
-// For HttpOnly cookies, a backend (BFF) is typically required.
-
-const thirtyDaysInSeconds = 30 * 24 * 60 * 60; // Example: 30 days expiry for cookies
-
-export const setAuthCookie = (token: string, tokenType: 'id_token' | 'access_token') => {
-  if (typeof window === 'undefined') return; // Ensure runs only on client
-  // console.log(`Setting ${tokenType} in cookie (non-HttpOnly)`);
-  // Max-age should ideally align with token expiry.
-  // Secure flag should be used in production (HTTPS).
-  const secureFlag = process.env.NODE_ENV === 'production' ? 'Secure;' : '';
-  // For simplicity, using a fixed max-age. Consider actual token expiry.
-  document.cookie = `${tokenType}=${token}; path=/; max-age=${thirtyDaysInSeconds}; SameSite=Lax; ${secureFlag}`;
-};
-
-export const removeAuthCookie = (tokenType: 'id_token' | 'access_token') => {
-  if (typeof window === 'undefined') return; // Ensure runs only on client
-  // console.log(`Removing ${tokenType} from cookie`);
-  document.cookie = `${tokenType}=; path=/; max-age=0; SameSite=Lax;`;
-};
-// --- End Cookie Helper Functions ---
-
-
 // 必要に応じて、トークンリフレッシュの処理もここに追加できます。
 // CognitoUser.refreshSession(refreshToken, callback) を使用
 // ただし、Amplify SDK を使うとこのあたりは自動でやってくれることが多い

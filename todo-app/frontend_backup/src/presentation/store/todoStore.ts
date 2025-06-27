@@ -14,14 +14,13 @@ interface TodoState {
   todos: Todo[];
   isLoading: boolean;
   error: Error | null;
-  initializeTodos: (serverTodos: Todo[]) => void; // For SSR data hydration
   fetchTodos: () => Promise<void>;
   addTodo: (todoInput: CreateTodoInput) => Promise<Todo | null>;
   updateTodo: (todoId: string, todoInput: UpdateTodoInput) => Promise<Todo | null>;
   deleteTodo: (todoId: string) => Promise<void>;
   toggleTodo: (todoId: string, currentCompletedStatus: boolean) => Promise<Todo | null>;
   clearError: () => void;
-  // _getIdToken is removed, idToken will be fetched directly from authStore inside actions
+  _getIdToken: () => string | null; // ヘルパー関数
 }
 
 export const useTodoStore = create<TodoState>((set, get) => ({
@@ -29,12 +28,19 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   isLoading: false,
   error: null,
 
-  initializeTodos: (serverTodos: Todo[]) => {
-    set({ todos: serverTodos, isLoading: false, error: null });
+  _getIdToken: (): string | null => { // ヘルパー関数
+    // useAuthStoreからisAuthenticated状態は取得する
+    const isAuthenticated = useAuthStore.getState().isAuthenticated;
+    if (!isAuthenticated) {
+      return null;
+    }
+    // authServiceのgetSessionTokensを直接使用してlocalStorageから取得
+    const tokens = getSessionTokens();
+    return tokens.idToken;
   },
 
   fetchTodos: async () => {
-    const idToken = useAuthStore.getState().idToken; // Get idToken from authStore
+    const idToken = get()._getIdToken();
     if (!idToken) {
       set({ error: new Error('Not authenticated'), isLoading: false, todos: [] });
       return;

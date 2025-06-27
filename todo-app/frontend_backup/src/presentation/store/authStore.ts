@@ -1,18 +1,16 @@
 import {create} from 'zustand';
-import { User, getCurrentUser, signOut as appSignOut, signIn as appSignIn, signUp as appSignUp, confirmSignUp as appConfirmSignUp, forgotPassword as appForgotPassword, confirmPassword as appConfirmPassword, getSessionTokens } from '../../application/authService';
+import { User, getCurrentUser, signOut as appSignOut, signIn as appSignIn, signUp as appSignUp, confirmSignUp as appConfirmSignUp, forgotPassword as appForgotPassword, confirmPassword as appConfirmPassword } from '../../application/authService';
 import * as cognitoTypes from '../../infrastructure/auth/cognitoAuthService'; // SignInParams, SignUpParams など
-import { setAuthCookie, removeAuthCookie } from '../../infrastructure/auth/cognitoAuthService'; // Cookie helpers
 
 interface AuthState {
   user: User | null;
-  idToken: string | null; // Added idToken to state
   isLoading: boolean;
   error: Error | null;
-  isAuthenticated: boolean;
+  isAuthenticated: boolean; // 認証済みかどうかを明確に示すフラグ
 
   checkAuthState: () => Promise<void>;
   signIn: (params: cognitoTypes.SignInParams) => Promise<void>;
-  signUp: (params: cognitoTypes.SignUpParams) => Promise<any>;
+  signUp: (params: cognitoTypes.SignUpParams) => Promise<any>; // ISignUpResultを返すようにする
   confirmSignUp: (params: cognitoTypes.ConfirmSignUpParams) => Promise<string>;
   signOut: () => void;
   forgotPassword: (email: string) => Promise<any>;
@@ -22,8 +20,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  idToken: null, // Initialize idToken
-  isLoading: true,
+  isLoading: true, // 初期表示時は認証状態を確認するためtrue
   error: null,
   isAuthenticated: false,
 
@@ -31,39 +28,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const currentUser = await getCurrentUser();
-      if (currentUser) {
-        const tokens = getSessionTokens(); // Get tokens from localStorage (managed by cognitoAuthService)
-        if (tokens.idToken) {
-          setAuthCookie(tokens.idToken, 'id_token'); // Ensure cookie is set/updated
-          // Consider setting accessToken as well if needed by middleware/server components for other purposes
-          // if (tokens.accessToken) setAuthCookie(tokens.accessToken, 'access_token');
-        }
-        set({ user: currentUser, idToken: tokens.idToken, isAuthenticated: true, isLoading: false });
-      } else {
-        removeAuthCookie('id_token');
-        // removeAuthCookie('access_token');
-        set({ user: null, idToken: null, isAuthenticated: false, isLoading: false });
-      }
+      set({ user: currentUser, isAuthenticated: !!currentUser, isLoading: false });
     } catch (err: any) {
-      removeAuthCookie('id_token');
-      // removeAuthCookie('access_token');
-      set({ user: null, idToken: null, isAuthenticated: false, isLoading: false, error: err });
+      // `getCurrentUser`内でエラーはキャッチされnullが返る想定だが念のため
+      set({ user: null, isAuthenticated: false, isLoading: false, error: err });
     }
   },
 
   signIn: async (params: cognitoTypes.SignInParams) => {
     set({ isLoading: true, error: null });
     try {
-      // appSignIn now returns { user, idToken, accessToken, refreshToken }
-      const { user, idToken, accessToken } = await appSignIn(params);
-      setAuthCookie(idToken, 'id_token');
-      // if (accessToken) setAuthCookie(accessToken, 'access_token');
-      set({ user, idToken, isAuthenticated: true, isLoading: false, error: null });
+      const { user } = await appSignIn(params); // appSignInは整形されたUserオブジェクトを返す
+      set({ user, isAuthenticated: true, isLoading: false, error: null });
     } catch (err: any) {
-      removeAuthCookie('id_token');
-      // removeAuthCookie('access_token');
-      set({ user: null, idToken: null, isAuthenticated: false, isLoading: false, error: err });
-      throw err;
+      set({ user: null, isAuthenticated: false, isLoading: false, error: err });
+      throw err; //呼び出し元でエラーハンドリングできるように再スロー
     }
   },
 
@@ -71,6 +50,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const result = await appSignUp(params);
+      // サインアップ成功時はまだ認証済みではない (確認が必要な場合)
+      // userオブジェクトにはcognitoUserが含まれるが、ここではまだセットしない
       set({ isLoading: false });
       return result;
     } catch (err: any) {
@@ -84,6 +65,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const result = await appConfirmSignUp(params);
       set({ isLoading: false });
+      // 確認成功後、自動的にログインさせるか、ログインページにリダイレクトするかは要件による
+      // ここでは、ログインは別途行うフローを想定
       return result;
     } catch (err: any) {
       set({ isLoading: false, error: err });
@@ -93,10 +76,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: () => {
     set({ isLoading: true });
-    appSignOut(); // This should clear tokens from localStorage via cognitoAuthService
-    removeAuthCookie('id_token');
-    // removeAuthCookie('access_token');
-    set({ user: null, idToken: null, isAuthenticated: false, isLoading: false, error: null });
+    appSignOut();
+    set({ user: null, isAuthenticated: false, isLoading: false, error: null });
   },
 
   forgotPassword: async (email: string) => {
