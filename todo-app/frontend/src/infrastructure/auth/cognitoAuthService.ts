@@ -110,7 +110,7 @@ export const signIn = (params: SignInParams): Promise<any> => {
 };
 
 export const getCurrentAuthenticatedUser = (): Promise<CognitoUser | null> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const cognitoUser = userPool.getCurrentUser();
     if (!cognitoUser) {
       return resolve(null);

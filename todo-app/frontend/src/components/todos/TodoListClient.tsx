@@ -18,7 +18,7 @@ const TodoListClient: React.FC<TodoListClientProps> = ({ initialTodos }) => {
     initializeTodosInStore(initialTodos);
   }, [initialTodos, initializeTodosInStore]);
 
-  const { todos, isLoading, error, addTodo, updateTodo, deleteTodo, toggleTodo, clearError, fetchTodos } = useTodoStore();
+  const { todos, isLoading, error, addTodo, updateTodo, deleteTodo, toggleTodo, clearError } = useTodoStore();
   const { user, signOut, isAuthenticated } = useAuthStore();
   const router = useRouter();
 

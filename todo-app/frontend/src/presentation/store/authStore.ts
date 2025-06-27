@@ -20,7 +20,7 @@ interface AuthState {
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   idToken: null, // Initialize idToken
   isLoading: true,
@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       // appSignIn now returns { user, idToken, accessToken, refreshToken }
-      const { user, idToken, accessToken } = await appSignIn(params);
+      const { user, idToken } = await appSignIn(params);
       setAuthCookie(idToken, 'id_token');
       // if (accessToken) setAuthCookie(accessToken, 'access_token');
       set({ user, idToken, isAuthenticated: true, isLoading: false, error: null });

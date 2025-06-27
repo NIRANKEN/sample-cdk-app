@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useAuthStore } from '../../presentation/store/authStore'; // Adjust path as needed
 
 const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { checkAuthState, isLoading: isAuthLoading } = useAuthStore();
+  const { checkAuthState } = useAuthStore();
 
   useEffect(() => {
     checkAuthState();

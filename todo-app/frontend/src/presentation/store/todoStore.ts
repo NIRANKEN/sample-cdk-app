@@ -3,7 +3,6 @@ import { Todo, CreateTodoInput, UpdateTodoInput } from '../../domain/todo';
 import { TodoApplicationService } from '../../application/todoService';
 import { ApiTodoRepository } from '../../infrastructure/api/apiTodoRepository'; // 実装を直接利用
 import { useAuthStore } from './authStore'; // 認証ストアからidTokenを取得
-import { getSessionTokens } from '../../application/authService'; // authServiceからトークン取得関数をインポート
 
 // TodoApplicationServiceのインスタンスを作成 (リポジトリを注入)
 // 本来はDIコンテナやReact Context経由で注入するのが望ましいが、ここでは簡略化のため直接インスタンス化

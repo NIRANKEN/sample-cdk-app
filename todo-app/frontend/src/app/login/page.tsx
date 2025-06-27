@@ -90,7 +90,7 @@ const LoginPage: React.FC = () => {
           alert('Password has been reset successfully! Please sign in with your new password.');
           break;
       }
-    } catch (err: any) {
+    } catch (_err: any) { // eslint-disable-line @typescript-eslint/no-unused-vars
       // Error is set in Zustand store, so no special handling here
     }
   };
@@ -124,7 +124,7 @@ const LoginPage: React.FC = () => {
               </button>
             </p>
             <p>
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <button type="button" onClick={() => handleFormSwitch('signUp')} style={{background: 'none', border: 'none', color: 'blue', textDecoration: 'underline', cursor: 'pointer'}}>
                 Sign Up
               </button>
