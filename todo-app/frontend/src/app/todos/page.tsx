@@ -14,7 +14,7 @@ function getTodoService() {
 
 // This is a React Server Component
 export default async function TodoPageSSR() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   // Attempt to get idToken from cookies. Adjust cookie name as necessary.
   const idToken = cookieStore.get('id_token')?.value || cookieStore.get('access_token')?.value;
 

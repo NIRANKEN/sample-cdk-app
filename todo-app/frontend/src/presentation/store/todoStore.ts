@@ -49,7 +49,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   addTodo: async (todoInput: CreateTodoInput) => {
-    const idToken = get()._getIdToken();
+    const idToken = useAuthStore.getState().idToken;
     if (!idToken) {
       set({ error: new Error('Not authenticated') });
       return null;
@@ -69,7 +69,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   updateTodo: async (todoId: string, todoInput: UpdateTodoInput) => {
-    const idToken = get()._getIdToken();
+    const idToken = useAuthStore.getState().idToken;
     if (!idToken) {
       set({ error: new Error('Not authenticated') });
       return null;
@@ -91,7 +91,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   deleteTodo: async (todoId: string) => {
-    const idToken = get()._getIdToken();
+    const idToken = useAuthStore.getState().idToken;
     if (!idToken) {
       set({ error: new Error('Not authenticated') });
       return;
@@ -111,7 +111,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   toggleTodo: async (todoId: string, currentCompletedStatus: boolean) => {
-    const idToken = get()._getIdToken();
+    const idToken = useAuthStore.getState().idToken;
     if (!idToken) {
       set({ error: new Error('Not authenticated') });
       return null;
