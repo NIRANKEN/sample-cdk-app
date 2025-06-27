@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../presentation/store/authStore'; // Adjusted path
 import { useRouter } from 'next/navigation'; // Changed from react-router-dom
@@ -93,9 +94,6 @@ const LoginPage: React.FC = () => {
       // Error is set in Zustand store, so no special handling here
     }
   };
-
-  // Mark component as client component
-  useEffect(() => {}, []); // Empty useEffect for client component marker, or add "use client" directive
 
   const renderForm = () => {
     switch (formType) {
